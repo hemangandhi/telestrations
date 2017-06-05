@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Waiting for players...</title>
+        <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        </head>
+        <body>
+            <p>Welcome player {#idx#}. You're waiting for others.</p>
+            <div class="app-container">
+                {% if round is divisibleBy 2 %}
+                    <!-- drawing -->
+                    <canvas id="draw"></canvas>
+    <script>
+var clickX = new Array();
+var clickY = new Array();
+var clickDrag = new Array();
+var paint;
+function addClick(x, y, dragging){
+  clickX.push(x);
+  clickY.push(y);
+  clickDrag.push(dragging);
+}
+$('#draw').mousemove(function(e){
+  if(paint){
+    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
+    redraw();
+  }
+});
+
+$('#draw').mousedown(function(e){
+  var mouseX = e.pageX - this.offsetLeft;
+  var mouseY = e.pageY - this.offsetTop;
+  paint = true;
+  addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
+  redraw();
+});
+
+$('#draw').mouseup(function(e){
+  paint = false;
+});
+$('#draw').mouseleave(function(e){
+  paint = false;
+});
+var context = $('#draw').getContext('2d');
+function redraw(){
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+  context.strokeStyle = "#df4b26";
+  context.lineJoin = "round";
+  context.lineWidth = 5;
+  for(var i=0; i < clickX.length; i++) {
+    context.beginPath();
+    if(clickDrag[i] && i){
+      context.moveTo(clickX[i-1], clickY[i-1]);
+     }else{
+       context.moveTo(clickX[i]-1, clickY[i]);
+     }
+     context.lineTo(clickX[i], clickY[i]);
+     context.closePath();
+     context.stroke();
+  }
+}
+    </script>
+                {% else %}
+                    <!-- writing -->
+                    <img src="round-{{round}}-{{idx}}.svg"></img>
+                    <form action="/next" method="post">
+                        <input name="file" type="text"
+                                           value="comment here!"></input>
+                        <input type="submit"></input>
+                    </form>
+                {%endif %}
+            </div>
+        </body>
+</html>
